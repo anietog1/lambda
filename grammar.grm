@@ -1,0 +1,15 @@
+{ # lambda language grammar definition
+ { # terminals
+  ID = '[a-z]', # single letter identifiers
+  '\', # 'lambda' symbol
+  '.', # separator
+  '(', ')' # separators
+ },
+ { # non-terminals
+  exp -> ID # variable name
+       | '(' exp ')' # precedence
+       | '\' ID '.' exp # definition
+       | exp exp # application
+ },
+ exp # starting symbol
+}
