@@ -22,18 +22,20 @@
 
 (define lambda-parser
   (parser
-   (start expr)
+   (start expression)
    (end EOF)
    (tokens lambda-tokens lambda-empty-tokens)
    (error (lambda (ok? name value) (printf "Couldn't parse: ~a\n" name)))
 
-   (precs (right \\)
-          (left \.))
-
    (grammar
-    (expr [(\( ID \))            (list $2)] ;; variable
-          [(\( \\ ID \. expr \)) (list $3 $5)] ;; abstraction
-          [(\( expr expr \))     (list $2 $3)])))) ;; application
+    (expression [(\\ variable-list \. expression) (list $2 $4)]
+                [(application-term)                         (list $1)])
+    (variable-list [(variable-list ID) (append $1 (list $2))]
+                   [(ID)                           (list $1)])
+    (application-term [(application-term item) (append $1 (list $2))]
+                      [(item)                             (list $1)])
+    (item [(ID)               (list $1)]
+          [(\( expression \)) (list $2)]))))
 
 (define (interpret str)
   (let* ([port (open-input-string str)]
