@@ -1,3 +1,3 @@
 # Lambda
 
-Simple lambda calculus implementation.
+A simple lambda calculus implementation in Racket.

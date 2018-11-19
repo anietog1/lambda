@@ -1,4 +1,5 @@
 #! /usr/bin/env racket
+
 #lang racket
 
 (require parser-tools/yacc
@@ -29,13 +30,13 @@
 
    (grammar
     (expression [(\\ variable-list \. expression) (list $2 $4)]
-                [(application-term)                         (list $1)])
+                [(application-term)                         $1])
     (variable-list [(variable-list ID) (append $1 (list $2))]
                    [(ID)                           (list $1)])
     (application-term [(application-term item) (append $1 (list $2))]
                       [(item)                             (list $1)])
-    (item [(ID)               (list $1)]
-          [(\( expression \)) (list $2)]))))
+    (item [(ID)                     $1]
+          [(\( expression \))       $2]))))
 
 (define (interpret str)
   (let* ([port (open-input-string str)]
