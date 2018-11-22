@@ -26,24 +26,25 @@
    (start expression)
    (end EOF)
    (tokens lambda-tokens lambda-empty-tokens)
-   (error (lambda (ok? name value) (printf "Couldn't parse: ~a\n" name)))
+   (error (lambda (ok? name value) (printf "Something failed :(\n" name)))
 
    (grammar
-    (expression [(\\ variable-list \. expression) (list $2 $4)]
+    (expression [(\\ ID \. expression)  (list 'abstract $2 $4)]
                 [(application-term)                         $1])
-    (variable-list [(variable-list ID) (append $1 (list $2))]
-                   [(ID)                           (list $1)])
-    (application-term [(application-term item) (append $1 (list $2))]
-                      [(item)                             (list $1)])
-    (item [(ID)                     $1]
-          [(\( expression \))       $2]))))
+    (application-term [(application-term atomic-term)  (list 'apply $1 $2)]
+                      [(atomic-term)                                    $1])
+    (atomic-term [(ID)                $1]
+                 [(\( expression \))  $2]))))
 
 (define (interpret str)
   (let* ([port (open-input-string str)]
-         [result (lambda-parser (lambda () (lambda-lexer port)))])
+               [result (lambda-parser (lambda () (lambda-lexer port)))])
     (displayln result)))
 
 (displayln "Welcome to lambda.rkt!")
 (for ([i (in-naturals)])
-  (display "> ")
-  (interpret (read-line)))
+     (display "> ")
+     (let ([line (read-line)])
+       (if (string? line)
+           (interpret line)
+         (exit))))

@@ -1,0 +1,18 @@
+# TERMINALS
+
+ID := '[a-z]'
+LAMBDA := '\'
+DOT := '.'
+LPAREN := '('
+RPAREN := ')'
+
+# NON-TERMINALS
+
+expression ::= '\' ID '.' expression
+             | application
+
+application-term ::= application-term atomic-term
+                   | atomic-term
+
+atomic-term ::= ID
+              | '(' expression ')'
