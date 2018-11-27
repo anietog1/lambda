@@ -11,8 +11,8 @@ RPAREN := ')'
 expression ::= '\' ID '.' expression
              | application
 
-application-term ::= application-term atomic-term
-                   | atomic-term
+application ::= application atomic
+              | atomic
 
-atomic-term ::= ID
-              | '(' expression ')'
+atomic ::= ID
+         | '(' expression ')'
