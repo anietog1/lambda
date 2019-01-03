@@ -1,18 +1,14 @@
 # TERMINALS
 
-ID := '[a-z]'
-LAMBDA := '\'
-DOT := '.'
-LPAREN := '('
-RPAREN := ')'
+ID := '[_a-zA-Z][_a-zA-Z0-9]*'
 
 # NON-TERMINALS
 
-expression ::= '\' ID '.' expression
+abstraction ::= '\' ID '.' abstraction
              | application
 
 application ::= application atomic
               | atomic
 
 atomic ::= ID
-         | '(' expression ')'
+         | '(' abstraction ')'

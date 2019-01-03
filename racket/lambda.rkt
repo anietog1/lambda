@@ -9,7 +9,8 @@
 (define-tokens lambda-tokens (ID))
 (define-empty-tokens lambda-empty-tokens (\\ \. \( \) EOF))
 (define-lex-abbrevs
-  (letter (char-range "a" "z")))
+  (alpha (char-range #\a #\z))
+  (digit (char-range #\0 #\9)))
 
 (define lambda-lexer
   (lexer
@@ -18,33 +19,35 @@
     (lambda-lexer input-port)]
    [(:or "\\" "." "(" ")")
     (string->symbol lexeme)]
-   [(:: letter)
+   [(:: (:or #\_ (:: alpha))
+        (:* (:or #\_ (:: alpha) (:: digit))))
     (token-ID lexeme)]))
 
 (define lambda-parser
   (parser
-   (start expression)
+   (start abstraction)
    (end EOF)
    (tokens lambda-tokens lambda-empty-tokens)
-   (error (lambda (ok? name value) (printf "Something failed :(\n" name)))
+   (error (lambda (ok? name value) (printf "Something failed :(\n" name value)))
 
    (grammar
-    (expression [(\\ ID \. expression)  (list 'abstract $2 $4)]
-                [(application-term)                         $1])
-    (application-term [(application-term atomic-term)  (list 'apply $1 $2)]
-                      [(atomic-term)                                    $1])
-    (atomic-term [(ID)                $1]
-                 [(\( expression \))  $2]))))
+    (abstraction [(\\ ID \. abstraction)  (list 'abstraction $2 $4)]
+                 [(application)                                  $1])
+    (application [(application atomic)  (list 'application $1 $2)]
+                 [(atomic)                                     $1])
+    (atomic [(ID)                 $1]
+            [(\( abstraction \))  $2]))))
 
 (define (interpret str)
   (let* ([port (open-input-string str)]
-               [result (lambda-parser (lambda () (lambda-lexer port)))])
+         [result (lambda-parser (lambda () (lambda-lexer port)))])
     (displayln result)))
 
 (displayln "Welcome to lambda.rkt!")
 (for ([i (in-naturals)])
-     (display "> ")
-     (let ([line (read-line)])
-       (if (string? line)
-           (interpret line)
-         (exit))))
+  (display "> ")
+  (let ([line (read-line)])
+    (if (string? line)
+        (interpret line)
+        ((display line)
+         (exit)))))
