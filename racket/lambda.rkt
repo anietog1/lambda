@@ -7,9 +7,8 @@
          (prefix-in : parser-tools/lex-sre))
 
 (define-tokens lambda-tokens (ID))
-(define-empty-tokens lambda-empty-tokens (\\ \. \( \) EOF))
+(define-empty-tokens lambda-empty-tokens (\\ \. \( \) := EOF))
 (define-lex-abbrevs
-  (alpha (char-range #\a #\z))
   (digit (char-range #\0 #\9)))
 
 (define lambda-lexer
@@ -17,20 +16,23 @@
    [(eof) 'EOF]
    [(:or #\tab #\space #\newline)
     (lambda-lexer input-port)]
-   [(:or "\\" "." "(" ")")
+   [(:or "\\" "." "(" ")" ":=")
     (string->symbol lexeme)]
-   [(:: (:or #\_ (:: alpha))
-        (:* (:or #\_ (:: alpha) (:: digit))))
+   [(:: (:or #\_ (:: alphabetic))
+        (:* (:or #\_ (:: alphabetic) (:: digit))))
     (token-ID lexeme)]))
 
 (define lambda-parser
   (parser
-   (start abstraction)
+   (start statement)
    (end EOF)
    (tokens lambda-tokens lambda-empty-tokens)
-   (error (lambda (ok? name value) (printf "Something failed :(\n" name value)))
+   (error (lambda (ok? name value)
+            (printf "Something failed :( ~a ~a\n" name value)))
 
    (grammar
+    (statement   [(ID := abstraction)  (list 'assignment $1 $3)]
+                 [(application)                              $1])
     (abstraction [(\\ ID \. abstraction)  (list 'abstraction $2 $4)]
                  [(application)                                  $1])
     (application [(application atomic)  (list 'application $1 $2)]
@@ -43,7 +45,7 @@
          [result (lambda-parser (lambda () (lambda-lexer port)))])
     (displayln result)))
 
-(displayln "Welcome to lambda.rkt!")
+(displayln "Welcome to Lambda!")
 (for ([i (in-naturals)])
   (display "> ")
   (let ([line (read-line)])

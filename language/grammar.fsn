@@ -1,8 +1,7 @@
-# TERMINALS
-
 ID := '[_a-zA-Z][_a-zA-Z0-9]*'
 
-# NON-TERMINALS
+statement ::= ID ':=' abstraction
+            | application
 
 abstraction ::= '\' ID '.' abstraction
              | application
