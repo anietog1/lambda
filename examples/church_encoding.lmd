@@ -1,0 +1,11 @@
+TRUE := \x.\y. x
+FALSE := \x.\y. y
+IF := \x. x
+OR := IF x TRUE y
+AND := IF x y FALSE
+NOT := IF x FALSE TRUE
+PAIR := \a.\b.\p. p a b
+FIRST := \p. p (\x.\y. x)
+SECOND := \p. p (\x.\y. y)
+I := \x. x
+W := \x. x x
