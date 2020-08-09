@@ -1,7 +1,10 @@
 ID := '[_a-zA-Z][_a-zA-Z0-9]*'
 
-statement ::= ID ':=' abstraction
-            | application
+statement-list ::= statement statement-list
+                 |
+
+statement ::= ID '=' abstraction
+            | '?' abstraction
 
 abstraction ::= '\' ID '.' abstraction
              | application
