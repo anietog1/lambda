@@ -112,8 +112,9 @@
                [e2 (eval-under-env (application-e2 e) env)])
            (if (closure? e1)
                (let* ([arg (closure-arg e1)]
+                      [body (closure-body e1)]
                       [env (cons (cons arg e2) env)])
-                 (eval-under-env e1 env))
+                 (eval-under-env body env))
                (error "Can't call application with non-closure")))]
         [(variable? e)
          (let ([name (variable-name e)])
@@ -131,3 +132,12 @@
     (set! global-env null)
     (map (lambda (e) (eval-under-env e global-env)) program)
     global-env))
+
+(define (repl)
+  (begin
+    (display "> ")
+    (eval-under-env (string->lambda (read-line)) global-env)
+    (repl)))
+
+(displayln "Welcome to Lambda!")
+(repl)
