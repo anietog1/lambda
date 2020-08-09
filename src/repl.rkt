@@ -11,7 +11,7 @@
                 (display "> ")
                 (let ([line (read-line)])
                   (if (string? line)
-                      (lambda-eval (string->lambda line))
+                      (lambda-execute (program->lambda line))
                       (begin
                         (displayln "Thanks for visiting!")
                         (exit))))

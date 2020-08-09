@@ -36,7 +36,7 @@
    (end EOF)
    (tokens lambda-tokens lambda-empty-tokens)
    (error (lambda (ok? name value)
-            (printf "Something failed :( ~a ~a\n" name value)))
+            (error "Parsing failed")))
    (grammar
     (statement-list
      [(statement \; statement-list) (cons $1 $3)]
@@ -106,9 +106,7 @@
   (cond [(binding? e)
          (let ([name (binding-name e)]
                [e (eval-under-env (binding-e e) env)])
-           (begin
-             (set! global-env (cons (cons name e) global-env))
-             e))]
+           (set! global-env (cons (cons name e) global-env)))]
         [(abstraction? e)
          (let ([arg (abstraction-arg e)]
                [body (abstraction-body e)])
@@ -119,6 +117,7 @@
            (if (closure? e1)
                (let* ([arg (closure-arg e1)]
                       [body (closure-body e1)]
+                      [env (closure-env e1)]
                       [env (cons (cons arg e2) env)])
                  (eval-under-env body env))
                (error "Can't call application with non-closure")))]
