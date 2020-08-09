@@ -1,5 +1,7 @@
 #lang racket
 
+(provide (all-defined-out))
+
 (require parser-tools/yacc
          parser-tools/lex
          (prefix-in : parser-tools/lex-sre))
@@ -74,7 +76,7 @@
            (string-append "(" "\\" arg "." (lambda->string body) ")"))]
         [(application? e)
          (let ([e1 (application-e1 e)]
-                 [e2 (application-e2 e)])
+               [e2 (application-e2 e)])
            (string-append
             "(" (lambda->string e1) " " (lambda->string e2) ")"))]
         [(variable? e)
@@ -94,7 +96,11 @@
 (define global-env null)
 
 (define (lookup-variable name env)
-  (cdr (assoc name env)))
+  (if (null? env)
+      (error "Variable not found in the current environment: " name)
+      (if (equal? name (caar env))
+          (cdar env)
+          (lookup-variable name (cdr env)))))
 
 (define (eval-under-env e env)
   (cond [(binding? e)
@@ -118,26 +124,18 @@
                (error "Can't call application with non-closure")))]
         [(variable? e)
          (let ([name (variable-name e)])
-           (lookup-variable name env))]
+           (eval-under-env (lookup-variable name env) env))]
         [(closure? e) e]
         [(inspection? e)
          (let ([e (inspection-e e)])
-           (begin
-             (println (lambda->string (eval-under-env e env)))
-             e))]
+           (println (lambda->string (eval-under-env e env))))]
         [#t (error "The given expression is not part of the lambda language definition")]))
 
-(define (execute-program program)
-  (begin
-    (set! global-env null)
-    (map (lambda (e) (eval-under-env e global-env)) program)
-    global-env))
+(define (lambda-clear)
+  (set! global-env null))
 
-(define (repl)
-  (begin
-    (display "> ")
-    (eval-under-env (string->lambda (read-line)) global-env)
-    (repl)))
+(define (lambda-eval e)
+  (eval-under-env e global-env))
 
-(displayln "Welcome to Lambda!")
-(repl)
+(define (lambda-execute stmts)
+  (map lambda-eval stmts))
